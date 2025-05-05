@@ -1,0 +1,23 @@
+{
+    "rules": [
+        {
+            "keyword": "/", 
+            "rule": "contains", 
+            "bypass": {
+                "enable": true, 
+                "data": [
+                    {
+                        "keyword": "扔漂流瓶",
+                        "rule": "contains",
+                        "duration": 30
+                    },{
+                        "keyword": "每日问答",
+                        "rule": "contains",
+                        "duration": 30
+                    }
+                ]
+            }
+        },
+        {"keyword": "今日老婆", "rule": "contains"}
+    ]
+}
