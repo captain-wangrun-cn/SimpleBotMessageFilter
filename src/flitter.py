@@ -33,8 +33,7 @@ async def check_message(message: dict) -> bool:
         bypass_config_data = rule.get('bypass', {})
         bypass_enabled = bypass_config_data.get('enable', False)
         bypass_time = 60
-        bypass_keyword = ""
-        bypass_pass_rule = ""
+        bypass_rule_pass = False
 
         # 检查暂行机制
         if bypass_enabled:
@@ -43,6 +42,9 @@ async def check_message(message: dict) -> bool:
             for bypass in bypass_list:
                 bypass_keyword = bypass.get('keyword', '')
                 bypass_pass_rule = bypass.get('rule', "contains")
+                if is_rule_pass(bypass_keyword, raw_message, bypass_pass_rule):
+                    bypass_rule_pass = True
+
                 if user_id in bypass_data:
                     # 且已有暂行数据
                     if bypass_data[user_id] > utils.get_time_stamp():
@@ -68,7 +70,7 @@ async def check_message(message: dict) -> bool:
                 
         if main_match:
             # 规则通过
-            if bypass_enabled and is_rule_pass(bypass_keyword, raw_message, bypass_pass_rule):
+            if bypass_enabled and bypass_rule_pass:
                 # 启用了暂行机制,并且符合条件
                 bypass_data[user_id] = utils.get_time_stamp() + bypass_time
             
