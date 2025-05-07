@@ -42,6 +42,7 @@ async def check_message(message: dict) -> bool:
             for bypass in bypass_list:
                 bypass_keyword = bypass.get('keyword', '')
                 bypass_pass_rule = bypass.get('rule', "contains")
+                _bypass_time = bypass.get('time', 60)
                 if is_rule_pass(bypass_keyword, raw_message, bypass_pass_rule):
                     bypass_rule_pass = True
 
@@ -50,9 +51,8 @@ async def check_message(message: dict) -> bool:
                     if bypass_data[user_id] > utils.get_time_stamp():
                         # 数据还在有效期内,直接放行
                         logger.debug("符合暂行条件,且有暂行数据,放行")
-                        bypass_time = bypass.get('time', 60)
+                        bypass_time = _bypass_time
                         main_match = True
-                        break
                     else:
                         # 数据已过期,删除暂行数据
                         del bypass_data[user_id]

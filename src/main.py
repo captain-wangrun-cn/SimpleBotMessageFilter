@@ -6,7 +6,7 @@ import server
 import flitter
 from logger import logger
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 parser = argparse.ArgumentParser(description=f'Simple Bot Message Filter v{__version__}')
 parser.add_argument("-H", "--host", type=str, default="localhost", help="host for websockets listen on")
