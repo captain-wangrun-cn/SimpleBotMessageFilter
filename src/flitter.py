@@ -1,6 +1,7 @@
 import utils
 from logger import logger
 
+filter_private = True
 rules = {}
 bypass_data = {}
 
@@ -26,6 +27,10 @@ async def check_message(message: dict) -> bool:
     user_id = str(message.get('user_id', ''))
     raw_message = message.get('raw_message', '')
     main_match = False
+
+    if not filter_private and message.get('sub_type') == 'friend':
+        # 私聊消息不过滤
+        return True
 
     for rule in rules:
         keyword = rule.get('keyword', '')

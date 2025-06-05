@@ -33,6 +33,7 @@ git clone https://github.com/captain-wangrun-cn/SimpleBotMessageFilter
 示例：
 ```json
 {
+    "filter_private": true,
     "rules": [
         {
             "keyword": "/", 
@@ -76,6 +77,7 @@ git clone https://github.com/captain-wangrun-cn/SimpleBotMessageFilter
 >
 > 此机制是为了解决一些需要多次接收消息的指令，例如问答等
 
+- `filter_private`：是否过滤私聊消息，默认`true`
 - `rules`：消息过滤规则列表，每个规则包含三个字段：
   - `keyword`：触发指令的关键词
   - `rule`：匹配规则，目前支持`contains`（包含）、`not_contains`（不包含）、`starts_with`（以...开头）、`ends_with`（以...结尾）、`equals`（等于）、`not_equals`（不等于）

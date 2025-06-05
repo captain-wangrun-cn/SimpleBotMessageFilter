@@ -1,4 +1,5 @@
 {
+    "filter_private": true,
     "rules": [
         {
             "keyword": "/", 

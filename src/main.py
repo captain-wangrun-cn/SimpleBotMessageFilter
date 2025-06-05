@@ -22,6 +22,7 @@ if __name__ == "__main__":
     with open(args.config, "r", encoding="utf-8") as f:
         config = json.load(f)
         flitter.rules = config["rules"]
+        flitter.filter_private = config.get("filter_private", True)
     
     if args.token:
         server.token = args.token
