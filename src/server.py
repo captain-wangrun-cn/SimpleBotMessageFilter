@@ -20,23 +20,56 @@ async def send_heartbeat():
         except websockets.exceptions.ConnectionClosed:
             logger.warning("WebSocket 客户端连接已关闭")
 
-async def client_listener():
-    global ws_client
-    global ws_server
-
+async def reconnect_client():
+    global ws_client, token
+    target_url = ws_client.path if ws_client else ""
+    self_id = ws_client.request_headers.get("x-self-id", "") if ws_client else ""
+    
+    if not target_url or not self_id:
+        logger.error("无法重连: 缺少目标URL或self_id")
+        return
+        
     while True:
         try:
-            response = await asyncio.wait_for(ws_client.recv(), timeout=60)
-            logger.debug(f"WebSocket 连接对方响应: {response}")
-            await ws_server.send(response)
-            # resp = await ws_server.recv()
-            # logger.warning(f"收到响应: {resp}")
-            # await ws_client.send(resp)
+            headers = {"platform": "qq", "x-self-id": self_id}
+            if token:
+                headers["Authorization"] = token
+                
+            ws_client = await websockets.asyncio.client.connect(
+                target_url, 
+                additional_headers=headers, 
+                max_size=30 * (1024 ** 2)
+            )
+            logger.info(f"已重新连接到 WebSocket 服务器 {target_url}")
+            return
+        except Exception as e:
+            logger.error(f"重连失败: {e}, 10秒后重试...")
+            await asyncio.sleep(10)
+
+async def client_listener():
+    global ws_client, ws_server
+    
+    while True:
+        try:
+            if ws_client and ws_client.open:
+                response = await asyncio.wait_for(ws_client.recv(), timeout=300)
+                logger.debug(f"WebSocket 连接对方响应: {response}")
+                if ws_server and ws_server.open:
+                    await ws_server.send(response)
+            else:
+                await asyncio.sleep(5)
+                
         except asyncio.TimeoutError:
-            logger.warning("WebSocket 客户端接收超时")
-        except websockets.exceptions.ConnectionClosed:
-            logger.warning("WebSocket 客户端连接已关闭")
-            break
+            logger.warning("WebSocket 客户端接收超时，继续等待...")
+            await asyncio.sleep(5)
+                
+        except websockets.exceptions.ConnectionClosed as e:
+            logger.warning(f"WebSocket 客户端连接已关闭: {e}, 尝试重新连接...")
+            await reconnect_client()
+            
+        except Exception as e:
+            logger.error(f"发生未预期错误: {e}, 10秒后重试...")
+            await asyncio.sleep(10)
 
 
 async def server_handler(websocket):
